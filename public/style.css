@@ -1,0 +1,38 @@
+body {
+  margin : 0px;
+  font-family: Arial, sans-serif;
+}
+label {
+  display: block;
+  font-size: 1.2em;
+  position: fixed;
+  bottom: 50px;
+}
+#username {
+  position: fixed;
+  bottom: 0px;
+  right: 0px;
+  width: 80vw;
+  height: 2em;
+  font-size: 1.5em;
+}
+#slider-size{
+  position: fixed;
+  bottom: 20px;
+  left: 0px;
+  width: 15vw;
+  height: 2em;
+  font-size: 1.5em;
+  background-color: white;
+  z-index: 10:
+}
+
+/*#slider-color{
+  position: fixed;
+  bottom: 0px;
+  left: 0px;
+  width: 15vw;
+  height: 2em;
+  font-size: 1.5em;
+  background-color: white;
+}*/

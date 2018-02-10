@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script type="text/javascript" src="/socket.io/socket.io.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.5.11/p5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.5.11/addons/p5.dom.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.5.11/addons/p5.sound.min.js"></script>
+    <script src="tracking-min.js"></script>
+    <script src="splines.min.js"></script>
+    <script src="stats.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <style>
+    #video{
+      width: 100vw;
+      height: 100vh;
+      position: absolute;
+    }
+    canvas, video {
+      -moz-transform: scale(-1, 1);
+      -o-transform: scale(-1, 1);
+      -webkit-transform: scale(-1, 1);
+      filter: FlipH;
+      transform: scale(-1, 1);
+    }
+    </style>
+  </head>
+  <body>
+    <script src="sketch.js"></script>
+    <input id="username" type="text" placeholder="username"></input>
+    <video id="video" width="400" height="300" preload autoplay loop muted></video>
+    <label id="">Pick a brush size
+    <input id="slider-size" type="range" min="1" max="50" value="10"></input></label>
+
+    <!-- <label id="">Pick a color
+    <input id="slider-color" type="range" min="0" max="220" value="100"></input></label> -->
+
+    <script>
+      window.onload = function() {
+        var video = document.getElementById('video');
+        var canvas = document.getElementById('defaultCanvas0');
+        var context = canvas.getContext('2d');
+
+        var drawSegments = [[]];
+        var segment = 0;
+
+        var tracker = new tracking.ColorTracker(['magenta', 'cyan']);
+
+        tracking.track('#video', tracker, { camera: true });
+
+        tracker.on('track', function(event) {
+          if (event.data.length === 0 && drawSegments[segment].length > 0) {
+            segment++;
+
+            if (!drawSegments[segment]) {
+              drawSegments[segment] = [];
+            }
+          }
+
+          event.data.forEach(function(rect) {
+            if (rect.color === 'magenta') {
+              draw(rect);
+            }
+          });
+        });
+
+        function draw(rect) {
+          drawSegments[segment].push(rect.x + rect.width / 2, rect.y + rect.height / 2);
+        }
+
+        function isInsideRect(x, y, rect) {
+          return rect.x <= x && x <= rect.x + rect.width &&
+              rect.y <= y && y <= rect.y + rect.height;
+        }
+
+        (function loop() {
+            for (var i = 0, len = drawSegments.length; i < len; i++) {
+                drawSpline(context, drawSegments[i], 0.5, false);
+            }
+
+            drawSegments = [drawSegments[drawSegments.length - 1]];
+            segment = 0;
+
+            requestAnimationFrame(loop);
+        }());
+      };
+    </script>
+  </body>
+</html>
