@@ -16,7 +16,7 @@ function createNewUser(id) {
 }
 
 function setBrushSize(id, size){
-  console.log(users[id]);
+  // console.log(users[id]);
   users[id].brushsize = size;
 }
 
@@ -68,7 +68,7 @@ function setup() {
     let id = message.id;
     let size = message.size;
     setBrushSize(id, size);
-    console.log("id "+id + "  size: "+ size);
+    // console.log("id "+id + "  size: "+ size);
   });
   // Remove disconnected users
   socket.on('disconnected', function(id){
@@ -102,6 +102,6 @@ function usernameChanged(){
 
 // Send brush size as it changes
 function sliderChanged(){
-  console.log(this.value());
+  // console.log(this.value());
   socket.emit('brushsize', this.value());
 }
