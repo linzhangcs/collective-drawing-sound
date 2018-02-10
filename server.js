@@ -62,7 +62,7 @@ inputs.on('connection', function(socket){
   socket.on('username', function (data) {
     let message = {
       id: socket.id,
-      data: data
+      username: data
     }
     outputs.emit('username', message);
     // console.log(username);
@@ -74,7 +74,7 @@ inputs.on('connection', function(socket){
   socket.on('brushsize', function(data){
     let message = {
       id: socket.id,
-      data: data
+      brushsize: data
     }
     outputs.emit('brushsize', message);
     // let size = message.size;
