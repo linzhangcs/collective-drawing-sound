@@ -1,15 +1,13 @@
 // Open and connect socket
 let socket = io('/input');
 
-// var datalog = new Array(1,2,3);
-
 let data, p_data;
+let velX = 0, velY = 0;
 
 function setup(){
-  data = accelerationZ * 10;
-  p_data = accelerationZ * 10;
-
-  //Select input fields
+  data = createVector(0,0);
+  p_data = createVector();
+console.log(data)
   // Select input and listen for changes
   select("#username").input(usernameChanged);
 
@@ -30,12 +28,19 @@ function sliderChanged(){
 }
 
 function draw(){
-
-  p_data = data;
-
+    let lr = floor(rotationY);
+    // Ignore flipped over device
+    lr = constrain(lr, -90, 90);
+    let pitch = map(lr, -90, 90, 100,1000)
+    velX = -pAccelerationX;
+    velY = pAccelerationY;
+  let tmp = {
+      "x": velX,
+      "y": velY,
+      "pitch": pitch
+  }
   let weight = 0.05;
-  data = (weight * accelerationZ * 10) + ( (1-weight) * p_data );
-  // console.log(parseInt(data));
-  socket.emit("accel", parseInt(data));
+
+  socket.emit("accel", tmp);
 
 }

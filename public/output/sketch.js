@@ -24,16 +24,17 @@ function setup(){
 
     let user = users[id];
 
-    user["accel"] = data.data;
-    user.y = user.accel + user.y; //slow down movement
-    user.y = constrain(user.y,0,H); //keep in canvas
+    user.accel = data.data;
 
-    // let amp = Math.sin(user.y/10);
+    user.pos.x += user.accel.x;
+    user.pos.y += user.accel.y;
+    user.pos.x = constrain(user.pos.x,0,W); //keep in canvas
+    user.pos.y = constrain(user.pos.y,0,H); //keep in canvas
+    console.log("data: "+data.data.x + "   "+ data.data.y);
     let amp = 1;
     user.osc.amp(amp, 0.05);
 
-    let freq = map(user.y, 0, H,240,480) + Math.sin(user.y/10) * 10;
-    user.osc.freq(freq, .01);
+    user.osc.freq(data.data.pitch);
 
     });
 
@@ -47,9 +48,7 @@ function setup(){
       }
 
       users[id].username = username;
-      // let username = message.username;
-      // Update namtetag element with new username
-      // users[id].elt.html(username);
+
     });
     // Listen for updates to setBrushSize
     socket.on('brushsize', function(data){
@@ -59,10 +58,9 @@ function setup(){
       if(!(id in users)){
         setupUser(id);
       }
-      console.log("id: "+data.id);
-      console.log("brushsize "+ data.brushsize);
+
       users[id].brushsize = brushsize;
-      console.log("brushsize:" +users[id].brushsize );
+      users[id].osc.amp(map(brushsize, 1, 50, 0, 1));
     });
 
     socket.on('disconnected', function(id){
@@ -73,10 +71,9 @@ function setup(){
 }
 function setupUser(id){
     users[id] = {
-      "x": random(W),
-      "y": H/2,
-      "accel": 0.,
-      "fill": random(0,200),
+      "pos": createVector(W/2, H/2),
+      "accel": createVector(),
+      "fill": 255,//random(0,200),
       "username": "Hello",
       "brushsize":3,
       "osc": new p5.Oscillator()
@@ -88,7 +85,7 @@ function setupUser(id){
     osc.start(0);
     osc.setType('saw');
     osc.freq(240);
-    osc.amp(1);
+    osc.amp(map(users[id].brushsize, 1, 50, 0, 1));
 }
 
 function draw(){
@@ -97,12 +94,8 @@ function draw(){
   // background(128);
   for (let user in users) {
     fill(users[user]["fill"]);
-    ellipse(users[user].x + Math.sin(users[user].y/10) * 10,users[user].y, users[user].brushsize);
-    console.log(users[user].brushsize);
+    ellipse(users[user].pos.x, users[user].pos.y, users[user].brushsize);
+    //console.log(users[user].brushsize);
   }
-
-}
-
-function change_tone(user) {
 
 }
