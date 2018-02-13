@@ -28,18 +28,23 @@ function sliderChanged(){
 }
 
 function draw(){
+    // Round rotation to clousest int
     let lr = floor(rotationY);
+
     // Ignore flipped over device
     lr = constrain(lr, -90, 90);
+    // Map rotation between 100 and 1000
     let pitch = map(lr, -90, 90, 100,1000)
+
     velX = -pAccelerationX;
     velY = pAccelerationY;
-  let tmp = {
-      "x": velX,
-      "y": velY,
-      "pitch": pitch
-  }
-  let weight = 0.05;
+
+      let tmp = {
+          "x": velX,
+          "y": velY,
+          "pitch": pitch
+      }
+
 
   socket.emit("accel", tmp);
 
