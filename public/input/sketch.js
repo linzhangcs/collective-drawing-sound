@@ -26,27 +26,52 @@ function sliderChanged(){
 }
 
 function draw(){
-    // update time variables
+    // update time variables and get time delta in SI units, seconds
     timestamp = millis();
     let delta_millis = timestamp - ptimestamp;
     let delta_seconds = delta_millis / 1000;
-    let weight = .30;
+
+    // smooth acceleration with simple linear interpolation
+    let weight = .05;
     smth_accel_x = smth_accel_x * (1-weight) + accelerationX * weight;
     smth_accel_y = smth_accel_y * (1-weight) + accelerationY * weight;
-    velo_x += smth_accel_x * delta_seconds;
-    velo_y += smth_accel_y * delta_seconds;
-    let move_x = velo_x * delta_seconds + .5 * smth_accel_x * delta_seconds**2;
-    let move_y = velo_y * delta_seconds + .5 * smth_accel_y * delta_seconds**2;
-    pos_x += move_x * 10;
-    pos_y += move_y * 10;
+
+    // integrate acceleration to get velocity, also friction
+    let friction = .99;
+    velo_x = velo_x * friction + smth_accel_x * delta_seconds;
+    velo_y = velo_y * friction + smth_accel_y * delta_seconds;
+
+    // calculate new position from last position, velocity, and acceleration
+    // TODO: i think my understanding of physics is wrong
+    // TODO: look at nature of code
+    // let move_x = velo_x * delta_seconds + .5 * smth_accel_x * delta_seconds**2;
+    // let move_y = velo_y * delta_seconds + .5 * smth_accel_y * delta_seconds**2;
+    let move_x = velo_x * delta_seconds;
+    let move_y = velo_y * delta_seconds;
+
+    // exagerate movement
+    pos_x += move_x * 100;
+    pos_y += move_y * 100;
+
+    // limit output to 10x10
     pos_x = constrain(pos_x, -10, 10);
     pos_y = constrain(pos_y, -10, 10);
-    console.log([pos_x,pos_y]);
 
+    // wrap around
+    pos_x = pos_x == -10 ? 10 : pos_x == 10 ? -10 : pos_x;
+    pos_y = pos_y == -10 ? 10 : pos_y == 10 ? -10 : pos_y;
+
+    // pitch
+    let lr = floor(rotationY);
+    // Ignore flipped over device
+    lr = constrain(lr, -90, 90);
+    let pitch = map(lr, -90, 90, 100,1000)
+
+    // build data packet and send
     let packet = {
       "x": pos_x,
       "y": pos_y,
-      "pitch": 500
+      "pitch": pitch
     }
     socket.emit("accel", packet);
 
