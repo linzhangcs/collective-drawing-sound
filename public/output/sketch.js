@@ -4,38 +4,31 @@ let socket = io('/output');
 let users = {};
 
 var W,H;
+let short_edge;
 
 function setup(){
 
   W = windowWidth - 50;
   H = windowHeight - 50;
+  short_edge = W < H ? W : H;
 
-  createCanvas(W, H);
+  createCanvas(short_edge, short_edge);
   background(128);
 
   socket.on('movement', function(data) {
 
     let id = data.id;
-    let accel = data.data;
+    let pitch = data.data.pitch;
 
     if (!(id in users)) {
       setupUser(id);
     }
 
     let user = users[id];
+    user.pos.x = map(data.data.x, -10,10,short_edge,0);
+    user.pos.y = map(data.data.y, -10,10,0,short_edge);
 
-    user.accel = data.data;
-
-    user.pos.x += user.accel.x;
-    user.pos.y += user.accel.y;
-    user.pos.x = constrain(user.pos.x,0,W); //keep in canvas
-    user.pos.y = constrain(user.pos.y,0,H); //keep in canvas
-    console.log("data: "+data.data.x + "   "+ data.data.y);
-    let amp = 1;
-    user.osc.amp(amp, 0.05);
-
-    user.osc.freq(data.data.pitch);
-
+    user.osc.freq(pitch);
     });
 
     // Listen for updates to usernames
@@ -50,6 +43,7 @@ function setup(){
       users[id].username = username;
 
     });
+
     // Listen for updates to setBrushSize
     socket.on('brushsize', function(data){
       let id = data.id;
@@ -64,18 +58,19 @@ function setup(){
     });
 
     socket.on('disconnected', function(id){
-        users[id].osc.stop();
+        // users[id].osc.stop();
         delete users[id];
-
       });
 }
 function setupUser(id){
     users[id] = {
-      "pos": createVector(W/2, H/2),
-      "accel": createVector(),
+      "pos": {
+          "x": W/2,
+          "y": H/2
+      },
       "fill": 255,//random(0,200),
       "username": "Hello",
-      "brushsize":3,
+      "brushsize":50,
       "osc": new p5.Oscillator()
     };
 
@@ -89,9 +84,7 @@ function setupUser(id){
 }
 
 function draw(){
-  fill("red");
-  stroke(128);
-  // background(128);
+  background(128);
   for (let user in users) {
     fill(users[user]["fill"]);
     ellipse(users[user].pos.x, users[user].pos.y, users[user].brushsize);

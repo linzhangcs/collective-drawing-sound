@@ -28,6 +28,7 @@ outputs.on('connection', function(socket){
 // Listen for input clients to connect
 inputs.on('connection', function(socket){
    console.log('An input client connected: ' + socket.id);
+
   // Listen for motion data
     socket.on('accel', function(data) {
         let message = {
@@ -35,7 +36,6 @@ inputs.on('connection', function(socket){
           data : data
         }
         outputs.emit('movement', message);
-         console.log(message.data);
       });
 
       // Listen for updates to usernames
